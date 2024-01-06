@@ -13,3 +13,9 @@ window.electronAPI.receiveFromMain("device-detached", (device) => {
   list.appendChild(item);
   console.log(device);
 });
+
+const toggleButton = document.getElementById("usb-monitor-toggle");
+toggleButton.addEventListener("click", () => {
+  console.log("click");
+  window.electronAPI.sendToMain("usb-monitor-toggle", {});
+});
