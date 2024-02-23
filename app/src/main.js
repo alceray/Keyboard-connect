@@ -1,9 +1,14 @@
-const { usb } = require("usb");
-const { app, BrowserWindow, ipcMain } = require("electron");
-const path = require("path");
+import { usb } from "usb";
+import { app, BrowserWindow, ipcMain } from "electron";
+import { join } from "path";
+import isDev from "electron-is-dev";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let win;
-let usbMonitoringEnabled = false;
 
 function usbAttachCallback(device) {
   console.log("Connected device");
@@ -30,36 +35,31 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, "../renderer/preload.js"),
+      preload: join(__dirname, "./renderer/preload.cjs"),
       nodeIntegration: true,
       contextIsolation: true,
     },
   });
-  win.loadFile("renderer/index.html");
-  ipcMain.on("usb-monitor-toggle", () => {
-    usbMonitoringEnabled = !usbMonitoringEnabled;
-    if (usbMonitoringEnabled) {
-      usb.addListener("attach", usbAttachCallback);
-      usb.addListener("detach", usbDetachCallback);
-    } else {
-      usb.removeListener("attach", usbAttachCallback);
-      usb.removeListener("detach", usbDetachCallback);
-    }
-  });
-
-  win.webContents.openDevTools();
+  win.loadFile("dist/index.html");
+  usb.addListener("attach", usbAttachCallback);
+  usb.addListener("detach", usbDetachCallback);
+  if (isDev) {
+    win.webContents.openDevTools();
+  }
 }
 
 app.whenReady().then(createWindow);
 
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    usb.removeListener("attach", usbAttachCallback);
+    usb.removeListener("detach", usbDetachCallback);
+    app.quit();
   }
 });
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
   }
 });
