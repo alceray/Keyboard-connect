@@ -1,0 +1,28 @@
+name: Bundle info.json Files
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # 00:00 on Sunday
+  workflow_dispatch:
+
+jobs:
+  bundle-info-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: qmk/qmk_firmware
+          path: qmk_firmware
+      - name: Install Dependencies
+        run: sudo apt-get install -y zip
+      - name: Fetch and Bundle info.json
+        run: |
+          cd qmk_firmware/keyboards
+          find . -name info.json -print | zip info_json_files.zip -@
+          mv info_json_files.zip $GITHUB_WORKSPACE
+      - name: Upload Zip File to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: info_json_files
+          path: info_json_files.zip
