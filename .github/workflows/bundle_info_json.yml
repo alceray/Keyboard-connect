@@ -22,7 +22,7 @@ jobs:
           mkdir tmp_info_jsons
           counter=1
           find . -name info.json | while read file; do
-            if jq -e 'has("keyboard_name")' "$file" > /dev/null && jq -e 'has("url")' "$file" > /dev/null; then
+            if jq -e 'has("keyboard_name")' "$file" > /dev/null && jq -e 'has("usb")' "$file" > /dev/null; then
               cp "$file" "tmp_info_jsons/info$counter.json"
               ((counter++))
             fi
