@@ -15,15 +15,17 @@ jobs:
           repository: qmk/qmk_firmware
           path: qmk_firmware
       - name: Install Dependencies
-        run: sudo apt-get install -y zip
+        run: sudo apt-get install -y jq zip
       - name: Fetch and Bundle info.json
         run: |
           cd qmk_firmware/keyboards
           mkdir tmp_info_jsons
           counter=1
           find . -name info.json | while read file; do
-            cp "$file" "tmp_info_jsons/info$counter.json"
-            ((counter++))
+            if jq -e 'has("keyboard_name")' "$file" > /dev/null && jq -e 'has("url")' "$file" > /dev/null; then
+              cp "$file" "tmp_info_jsons/info$counter.json"
+              ((counter++))
+            fi
           done
           cd tmp_info_jsons
           zip info_json_files.zip *
