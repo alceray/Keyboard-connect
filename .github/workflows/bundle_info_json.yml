@@ -19,8 +19,17 @@ jobs:
       - name: Fetch and Bundle info.json
         run: |
           cd qmk_firmware/keyboards
-          find . -name info.json -print | zip info_json_files.zip -@
+          mkdir tmp_info_jsons
+          counter=1
+          find . -name info.json | while read file; do
+            cp "$file" "tmp_info_jsons/info$counter.json"
+            ((counter++))
+          done
+          cd tmp_info_jsons
+          zip info_json_files.zip *
           mv info_json_files.zip $GITHUB_WORKSPACE
+          cd ..
+          rm -rf tmp_info_jsons
       - name: Upload Zip File to Artifacts
         uses: actions/upload-artifact@v4
         with:
