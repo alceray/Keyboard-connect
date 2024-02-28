@@ -32,8 +32,16 @@ jobs:
           mv info_json_files.zip $GITHUB_WORKSPACE
           cd ..
           rm -rf tmp_info_jsons
-      - name: Upload Zip File to Artifacts
-        uses: actions/upload-artifact@v4
+      # - name: Upload Zip File to Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: info_json_files
+      #     path: info_json_files.zip
+      - name: Upload Zip File to Release
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: info_json_files
-          path: info_json_files.zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: info_json_files.zip
+          asset_name: info_json_files.zip
+          tag: ${{ github.ref }}
+          overwrite: true
