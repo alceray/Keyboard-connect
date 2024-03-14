@@ -13,3 +13,4 @@ For development:
 
 - `npm start` to run
 - `npm run dev` to build and run at the same time
+- `npm rebuild` to rebuild after installing a package
